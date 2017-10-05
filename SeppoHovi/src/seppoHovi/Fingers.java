@@ -12,6 +12,10 @@ import lejos.utility.Delay;
 
 public class Fingers {
 
+
+	final int left = 40;
+	final int right = -40;
+
 	RegulatedMotor a;
 	RegulatedMotor b;
 	RegulatedMotor c;
@@ -194,7 +198,7 @@ public class Fingers {
 		Delay.msDelay(delay);
 	}
 
-	public void release() {
+	public void releaseAll() {
 
 		a.rotateTo(0);
 		b.rotateTo(0);
@@ -203,32 +207,239 @@ public class Fingers {
 
 	}
 
+	public void playFrom(String from, String to){
+
+
+		if (from == null){
+			if (to == "C"){
+				a.rotateTo(left);
+			} else if (to == "D"){
+				a.rotateTo(right);
+			} else if (to == "E"){
+				b.rotateTo(left);
+			} else if (to == "F"){
+				b.rotateTo(right);
+			} else if (to == "G"){
+				c.rotateTo(left);
+			} else if (to == "A"){
+				c.rotateTo(right);
+			} else if (to == "H"){
+				d.rotateTo(left);
+			} else if (to == "C2"){
+				d.rotateTo(right);
+			}
+		}
+
+		/// C JA D soitto muihin sointuihin
+		if (from == "C" || from == "D"){
+
+
+			if(to == "E"){
+				startSync();
+				a.rotateTo(0);
+				b.rotateTo(left);
+				endSync();
+			}
+			if(to == "F"){
+				startSync();
+				a.rotateTo(0);
+				b.rotateTo(right);
+				endSync();
+			}
+			if(to == "G"){
+				startSync();
+				a.rotateTo(0);
+				c.rotateTo(left);
+				endSync();
+			}
+			if(to == "A"){
+				startSync();
+				a.rotateTo(0);
+				c.rotateTo(right);
+				endSync();
+			}
+			if(to == "H"){
+				startSync();
+				a.rotateTo(0);
+				d.rotateTo(left);
+				endSync();
+			}
+			if(to == "C2"){
+				startSync();
+				a.rotateTo(0);
+				d.rotateTo(right);
+				endSync();
+			} if (to == null){
+				a.rotateTo(0);
+			}
+
+
+		}
+
+
+		if (from == "E" || from == "F"){
+
+
+			if(to == "C"){
+				startSync();
+				b.rotateTo(0);
+				a.rotateTo(left);
+				endSync();
+			}
+			if(to == "D"){
+				startSync();
+				b.rotateTo(0);
+				a.rotateTo(right);
+				endSync();
+			}
+			if(to == "G"){
+				startSync();
+				b.rotateTo(0);
+				c.rotateTo(left);
+				endSync();
+			}
+			if(to == "A"){
+				startSync();
+				b.rotateTo(0);
+				c.rotateTo(right);
+				endSync();
+			}
+			if(to == "H"){
+				startSync();
+				b.rotateTo(0);
+				d.rotateTo(left);
+				endSync();
+			}
+			if(to == "C2"){
+				startSync();
+				b.rotateTo(0);
+				d.rotateTo(right);
+				endSync();
+			}
+
+
+
+		}
+
+		if (from == "G" || from == "A"){
+
+
+			if(to == "E"){
+				startSync();
+				c.rotateTo(0);
+				b.rotateTo(left);
+				endSync();
+			}
+			if(to == "F"){
+				startSync();
+				c.rotateTo(0);
+				b.rotateTo(right);
+				endSync();
+			}
+			if(to == "C"){
+				startSync();
+				c.rotateTo(0);
+				a.rotateTo(left);
+				endSync();
+			}
+			if(to == "D"){
+				startSync();
+				c.rotateTo(0);
+				a.rotateTo(right);
+				endSync();
+			}
+			if(to == "H"){
+				startSync();
+				c.rotateTo(0);
+				d.rotateTo(left);
+				endSync();
+			}
+			if(to == "C2"){
+				startSync();
+				c.rotateTo(0);
+				d.rotateTo(right);
+				endSync();
+			}
+
+
+
+		}
+
+		if (from == "H" || from == "C2"){
+
+
+
+			if(to == "E"){
+				startSync();
+				d.rotateTo(0);
+				b.rotateTo(left);
+				endSync();
+			}
+			if(to == "F"){
+				startSync();
+				d.rotateTo(0);
+				b.rotateTo(right);
+				endSync();
+			}
+			if(to == "G"){
+				startSync();
+				d.rotateTo(0);
+				c.rotateTo(left);
+				endSync();
+			}
+			if(to == "A"){
+				startSync();
+				d.rotateTo(0);
+				c.rotateTo(right);
+				endSync();
+			}
+			if(to == "C"){
+				startSync();
+				d.rotateTo(0);
+				a.rotateTo(left);
+				endSync();
+			}
+			if(to == "D"){
+				startSync();
+				d.rotateTo(0);
+				a.rotateTo(right);
+				endSync();
+			}
+
+
+
+		}
+
+	}
+
 	public void airPlay(float distance) {
 
 		if (distance > 5 && distance <= 10) {
-			release();
+
 			a.rotateTo(40);
 		} else if (distance > 10 && distance <= 15) {
-			release();
+
 			a.rotateTo(-40);
 		} else if (distance > 15 && distance <= 20) {
-			release();
+
 			b.rotateTo(40);
 		} else if (distance > 20 && distance <= 25) {
-			release();
+
 			b.rotateTo(-40);
 		} else if (distance > 25 && distance <= 30) {
-			release();
+
 			c.rotateTo(40);
 		} else if (distance > 30 && distance <= 35) {
-			release();
+
 			c.rotateTo(-40);
 		} else if (distance > 35 && distance <= 40) {
-			release();
+
 			d.rotateTo(40);
 		} else if (distance > 40 && distance <= 45) {
-			release();
+
 			d.rotateTo(-40);
+		} else {
+			releaseAll();
 		}
 
 
@@ -239,7 +450,7 @@ public class Fingers {
 		for (int i = 0; i < song.length; i++) {
 
 			play(song[i].getKey(), song[i].getDelay());
-			release();
+			releaseAll();
 		}
 	}
 
@@ -275,7 +486,7 @@ public class Fingers {
 			return key;
 		}
 		if (i == 9) {
-			key = "C";
+			key = "C2";
 			return key;
 		}
 		return key;

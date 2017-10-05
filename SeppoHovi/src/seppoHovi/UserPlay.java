@@ -8,6 +8,7 @@ public class UserPlay implements Behavior {
 	private Fingers fingers;
 	private volatile boolean suppressed = false;
 
+
 	public UserPlay(Fingers fingers, InputThread in) {
 		this.fingers = fingers;
 		this.in = in;
@@ -19,7 +20,6 @@ public class UserPlay implements Behavior {
 
 
 		if (in.getI() >= 2 && in.getI() <= 9) {
-
 			return true;
 		}
 
@@ -31,15 +31,33 @@ public class UserPlay implements Behavior {
 	}
 
 	public void action() {
+
+		/// TÄMÄN LOGIIKKA EI TOIMI, EI NOSTA
+
+
 		suppressed = false;
+		boolean pressed = false;
+		String to = fingers.interpreter(in.getI());
+		String from = null;
 
-		String key;
-		key = fingers.interpreter(in.getI());
+		while (in.getI() != 10 && in.getI() != 0){
 
-		in.setI(0);
+			while (in.getI() >= 2 && in.getI() <= 9){
 
-		fingers.play(key, 0);
-		fingers.release(key);
+				if (in.getI() == 10){
+					to = null;
+					break;
+				}
+
+				fingers.playFrom(from, to);
+				from = to;
+
+
+			}
+
+			pressed = false;
+			break;
+		}
 
 	}
 }

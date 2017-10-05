@@ -36,7 +36,7 @@ public class AutoPlay implements Behavior {
 		suppressed = false;
 		in.setI(0);
 
-		fingers.release();
+		fingers.releaseAll();
 
 
 		fingers.autoPlay(songBank.ukkoNooa);
