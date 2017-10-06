@@ -1,6 +1,14 @@
-package application;
+package Gui;
 
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.Socket;
+
+import Controller.SeppoControl;
+import Controller.SeppoControl_IF;
+import Model.SeppoModel;
+import Model.SeppoModel_IF;
 import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
 import javafx.application.Application;
@@ -26,13 +34,25 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class SeppoHovinGUI extends Application {
+public class SeppoView extends Application implements SeppoView_IF {
 
+	private SeppoControl_IF kontrolleri;
+
+	static DataOutputStream out;
 	//tätä käytetään record-napin kuvien vaihdossa
 	private int recordIsPressed = 0;
 
+	@Override
+	public void init(){
+		SeppoModel_IF model = new SeppoModel();
+		kontrolleri = new SeppoControl(this, model);
+	}
+
+
     @Override
     public void start(Stage primaryStage) throws Exception {
+
+    	kontrolleri.connect();
 
     	//kuvat
     	ImageView noPress = new ImageView(new Image(new FileInputStream(
@@ -107,6 +127,7 @@ public class SeppoHovinGUI extends Application {
 			public void handle(ActionEvent event){
 				//Button mode1 = (Button) event.getSource();
 				//mode1.setGraphic(playPressed);
+				kontrolleri.send(1);
 				if (recordIsPressed == 0){
 					playButton.setGraphic(playPressed);
 					//vaihtaa napin ikonin takaisin 100ms jälkeen
@@ -209,6 +230,9 @@ public class SeppoHovinGUI extends Application {
                     	break;
                     } else {
                     	piano.getChildren().add(cPress);
+
+                    	kontrolleri.send(2);
+
                     };
                 	break;
                 case D:
@@ -216,6 +240,9 @@ public class SeppoHovinGUI extends Application {
                 		break;
                     } else {
                     	piano.getChildren().add(dPress);
+
+                    	kontrolleri.send(3);
+
                     };
                 	break;
                 case F:
@@ -223,6 +250,7 @@ public class SeppoHovinGUI extends Application {
                 		break;
                     } else {
                     	piano.getChildren().add(ePress);
+                    	kontrolleri.send(4);
                     };
                 	break;
                 case G:
@@ -230,6 +258,7 @@ public class SeppoHovinGUI extends Application {
                 		break;
                     } else {
                     	piano.getChildren().add(fPress);
+                    	kontrolleri.send(5);
                     };
                 	break;
                 case H:
@@ -237,6 +266,7 @@ public class SeppoHovinGUI extends Application {
                 		break;
                     } else {
                     	piano.getChildren().add(gPress);
+                    	kontrolleri.send(6);
                     };
                 	break;
                 case J:
@@ -244,6 +274,7 @@ public class SeppoHovinGUI extends Application {
                 		break;
                     } else {
                     	piano.getChildren().add(aPress);
+                    	kontrolleri.send(7);
                     };
                 	break;
                 case K:
@@ -251,6 +282,7 @@ public class SeppoHovinGUI extends Application {
                 		break;
                     } else {
                     	piano.getChildren().add(hPress);
+                    	kontrolleri.send(8);
                     };
                 	break;
                 case L:
@@ -258,6 +290,7 @@ public class SeppoHovinGUI extends Application {
                 		break;
                     } else {
                     	piano.getChildren().add(c2Press);
+                    	kontrolleri.send(9);
                     };
                 	break;
                 }
@@ -272,34 +305,45 @@ public class SeppoHovinGUI extends Application {
                 {
                 case S:
                     piano.getChildren().remove(cPress);
+                    kontrolleri.send(10);
                     break;
                 case D:
                     piano.getChildren().remove(dPress);
+                    kontrolleri.send(10);
                     break;
                 case F:
                     piano.getChildren().remove(ePress);
+                    kontrolleri.send(10);
                     break;
                 case G:
                 	piano.getChildren().remove(fPress);
+                    kontrolleri.send(10);
                     break;
                 case H:
                 	piano.getChildren().remove(gPress);
+                    kontrolleri.send(10);
                     break;
                 case J:
                 	piano.getChildren().remove(aPress);
+                    kontrolleri.send(10);
                     break;
                 case K:
                 	piano.getChildren().remove(hPress);
+                    kontrolleri.send(10);
                     break;
                 case L:
                 	piano.getChildren().remove(c2Press);
+                    kontrolleri.send(10);
                     break;
                 }
             }
         });
     }
 
+
     public static void main(String[] args) {
+
         launch(args);
+
     }
 }
