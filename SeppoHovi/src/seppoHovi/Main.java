@@ -31,7 +31,7 @@ public class Main {
 			Behavior idle = new Idle();
 			Behavior autoPlay = new AutoPlay(fingers, songBank, input);
 			Behavior userPlay = new UserPlay(fingers, input);
-			Behavior airplay = new Airplay(fingers, ir);
+			Behavior airplay = new Airplay(fingers, ir, input);
 			Behavior emergencyStop = new Shutdown(fingers, touch);
 			Behavior[] bArray = { idle,airplay, autoPlay, userPlay, emergencyStop };
 

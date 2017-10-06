@@ -34,12 +34,14 @@ public class AutoPlay implements Behavior {
 
 	public void action() {
 		suppressed = false;
+
 		in.setI(0);
 
-		fingers.releaseAll();
-
-
 		fingers.autoPlay(songBank.ukkoNooa);
+
+		fingers.releaseAll();
+		in.setI(0);
+
 
 		while (!suppressed)
 			Thread.yield();

@@ -8,7 +8,6 @@ public class UserPlay implements Behavior {
 	private Fingers fingers;
 	private volatile boolean suppressed = false;
 
-
 	public UserPlay(Fingers fingers, InputThread in) {
 		this.fingers = fingers;
 		this.in = in;
@@ -17,7 +16,6 @@ public class UserPlay implements Behavior {
 	public boolean takeControl() {
 
 		System.out.println(in.getI());
-
 
 		if (in.getI() >= 2 && in.getI() <= 9) {
 			return true;
@@ -34,30 +32,42 @@ public class UserPlay implements Behavior {
 
 		/// TÄMÄN LOGIIKKA EI TOIMI, EI NOSTA
 
-
 		suppressed = false;
 		boolean pressed = false;
-		String to = fingers.interpreter(in.getI());
+		String to = fingers.intInterpreter(in.getI());
 		String from = null;
+		int compare = 0;
+		int shut = 10;
 
-		while (in.getI() != 10 && in.getI() != 0){
+		while (in.getI() >= 2 && in.getI() <= 9) {
 
-			while (in.getI() >= 2 && in.getI() <= 9){
+			if (pressed == false) {
+				fingers.play(fingers.intInterpreter(in.getI()), 0);
+				compare = in.getI();
+				pressed = true;
+			}
 
-				if (in.getI() == 10){
-					to = null;
+			while (pressed == true && compare != in.getI()){
+
+				if (compare != in.getI()) {
+					fingers.playFrom(fingers.intInterpreter(compare), fingers.intInterpreter(in.getI()));
+					compare = in.getI();
+				}
+
+				if (in.getI() == shut && compare == shut){
 					break;
 				}
 
-				fingers.playFrom(from, to);
-				from = to;
-
-
 			}
 
-			pressed = false;
-			break;
+			if (pressed == true && shut == in.getI()) {
+				break;
+			}
+
 		}
+
+		in.setI(0);
+		fingers.releaseAll();
 
 	}
 }
