@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Timer;
 
 import Controller.SeppoControl;
 import Controller.SeppoControl_IF;
@@ -41,6 +42,10 @@ public class SeppoView extends Application implements SeppoView_IF {
 	static DataOutputStream out;
 	//tätä käytetään record-napin kuvien vaihdossa
 	private int recordIsPressed = 0;
+	private int playIsPressed = 0;
+	public String whichNote;
+	public int duration;
+	Timer timer = new Timer();
 
 	@Override
 	public void init(){
@@ -52,6 +57,7 @@ public class SeppoView extends Application implements SeppoView_IF {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
+    	//SongBank song = new SongBank();
     	kontrolleri.connect();
 
     	//kuvat
@@ -81,16 +87,24 @@ public class SeppoView extends Application implements SeppoView_IF {
     			"images/stop.png")));
     	ImageView record = new ImageView(new Image(new FileInputStream(
     			"images/record.png")));
+    	ImageView delete = new ImageView(new Image(new FileInputStream(
+    			"images/delete.png")));
     	ImageView playPressed = new ImageView(new Image(new FileInputStream(
     			"images/playPressed.png")));
     	ImageView stopPressed = new ImageView(new Image(new FileInputStream(
     			"images/stopPressed.png")));
     	ImageView recordPressed = new ImageView(new Image(new FileInputStream(
     			"images/recordPressed.png")));
-    	/*ImageView delete = new ImageView(new Image(new FileInputStream(
-    			"images/recordPressed.png")));
     	ImageView deletePressed = new ImageView(new Image(new FileInputStream(
-    			"images/recordPressed.png")));*/
+    			"images/recordPressed.png")));
+    	ImageView playError = new ImageView(new Image(new FileInputStream(
+    			"images/playError.png")));
+    	ImageView stopError = new ImageView(new Image(new FileInputStream(
+    			"images/stopError.png")));
+    	ImageView recordError = new ImageView(new Image(new FileInputStream(
+    			"images/recordError.png")));
+    	ImageView deleteError = new ImageView(new Image(new FileInputStream(
+    			"images/deleteError.png")));
 
     	//muut panet tulee borderpaneen
     	BorderPane border = new BorderPane();
@@ -105,7 +119,7 @@ public class SeppoView extends Application implements SeppoView_IF {
     	list.setPrefWidth(150);
     	list.setPrefHeight(250);
     	listGrid.setPadding(new Insets(25,0,25,25));
-    	listGrid.setStyle("-fx-control-inner-background: #F39C12; ");
+    	listGrid.setStyle("-fx-control-inner-background: #F39C12; " + "-fx-selection-bar: purple;");
     	//tekstikenttä tallennetta varten
     	TextField songName = new TextField();
     	songName.setPromptText("Nimeä uusi nauhoite");
@@ -119,7 +133,7 @@ public class SeppoView extends Application implements SeppoView_IF {
     	grid.setHgap(10);
 		grid.setVgap(10);
 		//napit
-    	Button playButton = new Button("",play);
+		Button playButton = new Button("",play);
     	playButton.setStyle("-fx-background-color: transparent;");
     	playButton.setMaxWidth(Double.MAX_VALUE);
     	playButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -127,11 +141,34 @@ public class SeppoView extends Application implements SeppoView_IF {
 			public void handle(ActionEvent event){
 				//Button mode1 = (Button) event.getSource();
 				//mode1.setGraphic(playPressed);
-				kontrolleri.sendInt(1);
+				//jos record on pohjassa, ei voi käyttää muita nappeja
 				if (recordIsPressed == 0){
-					playButton.setGraphic(playPressed);
-					//vaihtaa napin ikonin takaisin 100ms jälkeen
+					if (!list.getSelectionModel().isEmpty()) {
+						playButton.setGraphic(playPressed);
+						songName.setPromptText("Toistetaan...");
+						playIsPressed = 1;
+					//jos ei ole valittu kappaletta
+					} else {
+							songName.setPromptText("Ei valintaa");
+							playButton.setGraphic(playError);
+							Timeline timeline = new Timeline(new KeyFrame(
+									Duration.millis(100),
+									ae -> playButton.setGraphic(play)));
+							timeline.play();
+							timeline = new Timeline(new KeyFrame(
+									Duration.millis(2000),
+									ae -> songName.setPromptText("Nimeä uusi nauhoite")));
+							timeline.play();
+					}
+				} else {
+					//vilkuttaa nappia mahdollisimman epäoptimoidulla tavalla
+					songName.setPromptText("Nauhoitus käynnissä!");
 					Timeline timeline = new Timeline(new KeyFrame(
+							Duration.millis(2000),
+							ae -> songName.setPromptText("Nauhoitetaan...")));
+					timeline.play();
+					playButton.setGraphic(playError);
+					timeline = new Timeline(new KeyFrame(
 							Duration.millis(100),
 							ae -> playButton.setGraphic(play)));
 					timeline.play();
@@ -147,8 +184,36 @@ public class SeppoView extends Application implements SeppoView_IF {
 				//Button mode2 = (Button) event.getSource();
 				//mode2.setGraphic(stopPressed);
 				if (recordIsPressed == 0) {
-					stopButton.setGraphic(stopPressed);
+					if (playIsPressed == 1) {
+						stopButton.setGraphic(stopPressed);
+						Timeline timeline = new Timeline(new KeyFrame(
+								Duration.millis(200),
+								ae -> stopButton.setGraphic(stop)));
+						timeline.play();
+						playButton.setGraphic(play);
+						playIsPressed = 0;
+						songName.setPromptText("Nimeä uusi nauhoite");
+					} else {
+						songName.setPromptText("Ei valintaa");
+						stopButton.setGraphic(stopError);
+						Timeline timeline = new Timeline(new KeyFrame(
+								Duration.millis(100),
+								ae -> stopButton.setGraphic(stop)));
+						timeline.play();
+						timeline = new Timeline(new KeyFrame(
+								Duration.millis(2000),
+								ae -> songName.setPromptText("Nimeä uusi nauhoite")));
+						timeline.play();
+					}
+				} else {
+					//vilkuttaa nappia mahdollisimman epäoptimoidulla tavalla
+					songName.setPromptText("Nauhoitus käynnissä!");
 					Timeline timeline = new Timeline(new KeyFrame(
+							Duration.millis(2000),
+							ae -> songName.setPromptText("Nauhoitetaan...")));
+					timeline.play();
+					stopButton.setGraphic(stopError);
+					timeline = new Timeline(new KeyFrame(
 							Duration.millis(100),
 							ae -> stopButton.setGraphic(stop)));
 					timeline.play();
@@ -167,45 +232,151 @@ public class SeppoView extends Application implements SeppoView_IF {
 					//mode3.setGraphic(record);
 					recordButton.setGraphic(record);
 					recordIsPressed = 0;
+					//song.createSongTable(newSong);
+					songName.setPromptText("Kappale tallennettu!");
+					Timeline timeline = new Timeline(new KeyFrame(
+							Duration.millis(2000),
+							ae -> songName.setPromptText("Nimeä uusi nauhoite")));
+					timeline.play();
 					//tähän tulee varmaan ne toiminnot
 				} else {
 					//Button mode3 = (Button) event.getSource();
 					//mode3.setGraphic(recordPressed);
 					//uuden tallenteen nimi tallentuu kun nauhoitus aloitetaan
-					if (!songName.getText().isEmpty()){
-						items.add(songName.getText());
-						songName.clear();
-						recordButton.setGraphic(recordPressed);
-						recordIsPressed = 1;
+					if (!songName.getText().isEmpty()) {
+						if (playIsPressed == 1) {
+							recordButton.setGraphic(recordError);
+	        				Timeline timeline = new Timeline(new KeyFrame(
+	    							Duration.millis(100),
+	    							ae -> recordButton.setGraphic(record)));
+	        				timeline.play();
+							songName.setPromptText("Toisto käynnissä!");
+						} else {
+							//newSong = songName.getText();
+							//items.add(newSong);
+							songName.clear();
+							recordButton.setGraphic(recordPressed);
+							songName.setPromptText("Nauhoitetaan...");
+							recordIsPressed = 1;
+
+						}
 					} else {
-						songName.setPromptText("Kenttä ei voi olla tyhjä!");
+						if (playIsPressed == 1) {
+							recordButton.setGraphic(recordError);
+	        				Timeline timeline = new Timeline(new KeyFrame(
+	    							Duration.millis(100),
+	    							ae -> recordButton.setGraphic(record)));
+	        				timeline.play();
+							songName.setPromptText("Toisto käynnissä!");
+							timeline = new Timeline(new KeyFrame(
+	    							Duration.millis(2000),
+	    							ae -> songName.setPromptText("Toistetaan...")));
+	        				timeline.play();
+							songName.setPromptText("Toisto käynnissä!");
+						} else {
+							recordButton.setGraphic(recordError);
+							Timeline timeline = new Timeline(new KeyFrame(
+									Duration.millis(100),
+									ae -> recordButton.setGraphic(record)));
+							timeline.play();
+							songName.setPromptText("Anna ensin nimi!");
+							timeline = new Timeline(new KeyFrame(
+									Duration.millis(2000),
+									ae -> songName.setPromptText("Nimeä uusi nauhoite")));
+							timeline.play();
+						}
 					}
 				}
 			}
 		});
-    	Button deleteButton = new Button("Delete");
+    	Button deleteButton = new Button("",delete);
+    	deleteButton.setStyle("-fx-background-color: transparent;");
+    	deleteButton.setMaxWidth(Double.MAX_VALUE);
     	deleteButton.setOnAction(new EventHandler<ActionEvent>() {
     		@Override
     		public void handle(ActionEvent event){
-    			if (!list.getSelectionModel().isEmpty()){
-    				items.remove(list.getSelectionModel().getSelectedItem());
-    			}
-    			list.getSelectionModel().clearSelection();
+    			if (recordIsPressed == 0){
+    				if (!list.getSelectionModel().isEmpty()){
+    					if (playIsPressed == 1) {
+							deleteButton.setGraphic(deleteError);
+	        				Timeline timeline = new Timeline(new KeyFrame(
+	    							Duration.millis(100),
+	    							ae -> deleteButton.setGraphic(delete)));
+	        				timeline.play();
+							songName.setPromptText("Toisto käynnissä!");
+							timeline = new Timeline(new KeyFrame(
+	    							Duration.millis(2000),
+	    							ae -> songName.setPromptText("Toistetaan...")));
+	        				timeline.play();
+						} else {
+							deleteButton.setGraphic(deletePressed);
+							Timeline timeline = new Timeline(new KeyFrame(
+									Duration.millis(200),
+									ae -> deleteButton.setGraphic(delete)));
+							timeline.play();
+							items.remove(list.getSelectionModel().getSelectedItem());
+							list.getSelectionModel().clearSelection();
+							songName.setPromptText("Kappale poistettu!");
+							list.getSelectionModel().clearSelection();
+							timeline = new Timeline(new KeyFrame(
+									Duration.millis(2000),
+        							ae -> songName.setPromptText("Nimeä uusi nauhoite")));
+							timeline.play();
+						}
+    				} else {
+    					if (playIsPressed == 1) {
+    						deleteButton.setGraphic(deleteError);
+	        				Timeline timeline = new Timeline(new KeyFrame(
+	    							Duration.millis(100),
+	    							ae -> deleteButton.setGraphic(delete)));
+	        				timeline.play();
+							songName.setPromptText("Toisto käynnissä!");
+							timeline = new Timeline(new KeyFrame(
+	    							Duration.millis(2000),
+	    							ae -> songName.setPromptText("Toistetaan...")));
+	        				timeline.play();
+						} else {
+							songName.setPromptText("Ei valintaa");
+							deleteButton.setGraphic(deleteError);
+							Timeline timeline = new Timeline(new KeyFrame(
+									Duration.millis(100),
+									ae -> deleteButton.setGraphic(delete)));
+							timeline.play();
+							timeline = new Timeline(new KeyFrame(
+									Duration.millis(2000),
+									ae -> songName.setPromptText("Nimeä uusi nauhoite")));
+							timeline.play();
+						}
+    				}
+    			} else {
+					//vilkuttaa nappia mahdollisimman epäoptimoidulla tavalla
+					songName.setPromptText("Nauhoitus käynnissä!");
+					Timeline timeline = new Timeline(new KeyFrame(
+							Duration.millis(2000),
+							ae -> songName.setPromptText("Nauhoitetaan...")));
+					timeline.play();
+					deleteButton.setGraphic(deleteError);
+					timeline = new Timeline(new KeyFrame(
+							Duration.millis(100),
+							ae -> deleteButton.setGraphic(delete)));
+					timeline.play();
+				}
+
     		}
     	});
     	//asettelu
     	grid.setPadding(new Insets(25,25,25,25));
     	grid.setHgap(10);
-		grid.setVgap(22);
+		grid.setVgap(17);
     	grid.add(playButton, 0, 0);
     	grid.add(stopButton, 0, 1);
     	grid.add(recordButton, 0, 2);
-    	grid.add(deleteButton, 0, 4);
+    	grid.add(deleteButton, 0, 3);
     	grid.setPadding(new Insets(25,25,25,25));
 
     	//pianonäkymä
     	Pane piano = new StackPane();
-        piano.setPadding(new Insets(200, 150, 0, 0));
+        piano.setPadding(new Insets(220, 150, 0, 0));
     	piano.getChildren().add(noPress);
 
     	//panejen sijoitus
