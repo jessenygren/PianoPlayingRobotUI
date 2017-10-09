@@ -25,7 +25,7 @@ public class SeppoControl implements SeppoControl_IF {
 	}
 
 	@Override
-	public void send(int data){
+	public void sendInt(int data){
 
 		model.sendInt(data);
 	}

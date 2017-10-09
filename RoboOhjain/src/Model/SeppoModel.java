@@ -32,5 +32,4 @@ public class SeppoModel implements SeppoModel_IF {
 
 	}
 
-
 }
