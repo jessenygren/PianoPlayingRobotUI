@@ -15,7 +15,7 @@ public class UserPlay implements Behavior {
 
 	public boolean takeControl() {
 
-		System.out.println(in.getI());
+	//	System.out.println(in.getI());
 
 		if (in.getI() >= 2 && in.getI() <= 9) {
 			return true;

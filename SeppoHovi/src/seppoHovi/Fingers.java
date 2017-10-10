@@ -1,6 +1,7 @@
 package seppoHovi;
 
 import lejos.hardware.ev3.LocalEV3;
+import Model.Note;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
@@ -23,6 +24,8 @@ public class Fingers {
 
 	private String from = null;
 	private String to = null;
+
+
 
 	public Fingers() {
 		try {
@@ -163,21 +166,37 @@ public class Fingers {
 
 		if (from == null) {
 			if (to == "C") {
+				startSync();
 				a.rotateTo(left);
+				endSync();
 			} else if (to == "D") {
+				startSync();
 				a.rotateTo(right);
+				endSync();
 			} else if (to == "E") {
+				startSync();
 				b.rotateTo(left);
+				endSync();
 			} else if (to == "F") {
+				startSync();
 				b.rotateTo(right);
+				endSync();
 			} else if (to == "G") {
+				startSync();
 				c.rotateTo(left);
+				endSync();
 			} else if (to == "A") {
+				startSync();
 				c.rotateTo(right);
+				endSync();
 			} else if (to == "H") {
+				startSync();
 				d.rotateTo(left);
+				endSync();
 			} else if (to == "C2") {
+				startSync();
 				d.rotateTo(right);
+				endSync();
 			}
 		}
 
@@ -185,21 +204,30 @@ public class Fingers {
 		if (from == "C" || from == "D") {
 
 			if (from == "C" && to == "D") {
+				startSync();
 				a.rotateTo(right);
+				endSync();
 			}
 
 			if (from == "D" && to == "C") {
+				startSync();
 				a.rotateTo(left);
+				endSync();
 			}
 
 			if (from == "C" && to == "C"){
-				a.rotateTo(0);
+
+
 				a.rotateTo(left);
+
+
 			}
 
 			if (from == "D" && to == "D"){
-				a.rotateTo(0);
+
+
 				a.rotateTo(right);
+
 			}
 
 			if (to == "E") {
@@ -255,12 +283,12 @@ public class Fingers {
 			}
 
 			if (from == "E" && to == "E"){
-				b.rotateTo(0);
+
 				b.rotateTo(left);
 			}
 
 			if (from == "F" && to == "F"){
-				b.rotateTo(0);
+
 				b.rotateTo(right);
 			}
 
@@ -314,12 +342,12 @@ public class Fingers {
 			}
 
 			if (from == "G" && to == "G"){
-				c.rotateTo(0);
+
 				c.rotateTo(left);
 			}
 
 			if (from == "A" && to == "A"){
-				c.rotateTo(0);
+
 				c.rotateTo(right);
 			}
 
@@ -374,12 +402,12 @@ public class Fingers {
 			}
 
 			if (from == "H" && to == "H"){
-				d.rotateTo(0);
+
 				d.rotateTo(left);
 			}
 
 			if (from == "C2" && to == "C2"){
-				d.rotateTo(0);
+
 				d.rotateTo(right);
 			}
 
@@ -435,57 +463,6 @@ public class Fingers {
 
 		playFrom(from, to);
 
-
-		/*
-		if ("C".equals(key) || "c".equals(key)) {
-
-			a.rotateTo(40);
-
-		}
-
-		if ("D".equals(key) || "d".equals(key)) {
-
-			a.rotateTo(-40);
-
-		}
-
-		if ("E".equals(key) || "e".equals(key)) {
-
-			b.rotateTo(40);
-
-		}
-
-		if ("F".equals(key) || "f".equals(key)) {
-
-			b.rotateTo(-40);
-
-		}
-
-		if ("G".equals(key) || "g".equals(key)) {
-
-			c.rotateTo(40);
-
-		}
-
-		if ("A".equals(key) || "a".equals(key)) {
-
-			c.rotateTo(-40);
-
-		}
-
-		if ("H".equals(key) || "h".equals(key)) {
-
-			d.rotateTo(40);
-
-		}
-
-		if ("C2".equals(key) || "c2".equals(key)) {
-
-			d.rotateTo(-40);
-
-		}
-		*/
-
 		Delay.msDelay(delay);
 
 	}
@@ -524,7 +501,7 @@ public class Fingers {
 
 	}
 
-	public void autoPlay(Song[] song) {
+	public void autoPlay(Note[] song) {
 
 		for (int i = 0; i < song.length; i++) {
 
@@ -595,6 +572,8 @@ public class Fingers {
 		}
 		return key;
 	}
+
+
 
 	public void stop() {
 		startSync();
