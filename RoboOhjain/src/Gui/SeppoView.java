@@ -2,8 +2,6 @@ package Gui;
 
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.Socket;
 import java.util.Timer;
 
 import Controller.SeppoControl;
@@ -18,20 +16,17 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -146,6 +141,13 @@ public class SeppoView extends Application implements SeppoView_IF {
 					if (!list.getSelectionModel().isEmpty()) {
 						playButton.setGraphic(playPressed);
 						songName.setPromptText("Toistetaan...");
+
+        				kontrolleri.sendInt(1);
+
+
+						kontrolleri.sendSong();
+
+
 						playIsPressed = 1;
 					//jos ei ole valittu kappaletta
 					} else {
@@ -404,6 +406,8 @@ public class SeppoView extends Application implements SeppoView_IF {
 
                     	kontrolleri.sendInt(2);
 
+                    	kontrolleri.timerStart();
+
                     };
                 	break;
                 case D:
@@ -412,7 +416,7 @@ public class SeppoView extends Application implements SeppoView_IF {
                     } else {
                     	piano.getChildren().add(dPress);
 
-                    	kontrolleri.sendInt(3);
+        				kontrolleri.sendInt(3);
 
                     };
                 	break;
@@ -477,6 +481,8 @@ public class SeppoView extends Application implements SeppoView_IF {
                 case S:
                     piano.getChildren().remove(cPress);
                     kontrolleri.sendInt(10);
+                    kontrolleri.timerStop();
+                    System.out.println(kontrolleri.getTime());
                     break;
                 case D:
                     piano.getChildren().remove(dPress);

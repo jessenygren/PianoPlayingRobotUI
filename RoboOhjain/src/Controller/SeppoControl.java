@@ -30,5 +30,25 @@ public class SeppoControl implements SeppoControl_IF {
 		model.sendInt(data);
 	}
 
+	@Override
+	public void sendSong(){
+		model.sendSong();
+	}
+
+	@Override
+	public void timerStart(){
+		model.timerStart();
+	}
+
+	@Override
+	public void timerStop(){
+		model.timerStop();
+	}
+
+	@Override
+	public long getTime(){
+		return model.getTime();
+	}
+
 
 }
