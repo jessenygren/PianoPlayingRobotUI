@@ -1,3 +1,4 @@
+
 package Model;
 
 import java.io.File;
@@ -7,6 +8,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import Model.Note;
 
 public class SongFactory {
 
@@ -19,6 +22,7 @@ public class SongFactory {
 		int delay;
 		int i = 1;
 
+
 		ArrayList<Note> list = new ArrayList<Note>();
 
 		System.out.println("Syötä biisin nimi ja paina ENTER");
@@ -28,6 +32,15 @@ public class SongFactory {
 			System.out.println("-----------------------------------------------------------");
 			System.out.println("Syötä kosketin, pienellä, ja paina ENTER (c,d,e,f,g,a,h,v)");
 			key = lukija.next().trim().charAt(0);
+
+			if (key != 'c' && key != 'd' && key != 'e' && key != 'f' && key != 'g' && key != 'a' && key != 'h' && key != 'v'){
+				System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				System.out.println("!!!!!!!!!!!!!!!!!SYÖTTÄMÄSI KIRJAIN ON VIRHEELLINEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				System.out.println("Ohjelma sulkeutuu");
+				System.exit(0);
+			}
+
 			System.out.println("-----------------------------------------------------------");
 			System.out.println("Syötä delay (ms) ja paina ENTER");
 			System.out.println("------------------------------------------");
@@ -37,6 +50,16 @@ public class SongFactory {
 
 			list.add(n);
 
+			System.out.println(" ");
+			System.out.println("Kappale " + name );
+			for(Note e : list){
+
+				System.out.println(e.getKey() + ", " + e.getDelay());
+
+
+			}
+
+			System.out.println(" ");
 			System.out.println("1 + ENTER = Jatka, 0 + ENTER = LOPETA");
 
 			i = lukija.nextInt();
@@ -68,3 +91,6 @@ public class SongFactory {
 	}
 
 }
+
+
+

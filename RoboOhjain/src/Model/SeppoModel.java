@@ -1,7 +1,10 @@
 package Model;
 
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -42,13 +45,31 @@ public class SeppoModel implements SeppoModel_IF {
 	}
 
 
+	public ArrayList<Note> unpackFile(String filepath){
 
-	public void sendSong(){
-		ArrayList<Note> list = new ArrayList<Note>();
+		ArrayList<Note> newSong = null;
 
-		list.add(C);
-		list.add(D);
+		try{
+			FileInputStream in = new FileInputStream(filepath);
+			ObjectInputStream ois = new ObjectInputStream(in);
+			newSong = (ArrayList<Note>) ois.readObject();
+			ois.close();
 
+		}catch (Exception e){
+			System.out.println("Tiedoston purkaminen epäonnistui.");
+			e.printStackTrace();
+		}
+		return newSong;
+	}
+
+	public void deleteFile(String filepath) {
+		File targetFile = new File(filepath);
+		
+		targetFile.delete();
+	}
+
+
+	public void sendSong(ArrayList<Note> list){
 
 
 		try{
@@ -57,8 +78,11 @@ public class SeppoModel implements SeppoModel_IF {
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-
 	}
+
+
+
+
 
 	public void timerStart(){
 		tStart = System.currentTimeMillis();
@@ -74,4 +98,10 @@ public class SeppoModel implements SeppoModel_IF {
 	}
 
 
+
+
+
 }
+
+
+
