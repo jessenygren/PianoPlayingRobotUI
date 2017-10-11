@@ -1,7 +1,10 @@
 package Gui;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.Timer;
 
 import Controller.SeppoControl;
@@ -33,11 +36,14 @@ import javafx.util.Duration;
 public class SeppoView extends Application implements SeppoView_IF {
 
 	private SeppoControl_IF kontrolleri;
-
+	private File folder = new File("C:\\Users\\Lenovo\\workspace\\RoboOhjain\\Songs\\");
+	private File[] listOfFiles = folder.listFiles();
+	private ObservableList<String> items;
+	ListView<String> list;
+	private String newSong;	//uuden nauhoitteen nimi
 	static DataOutputStream out;
-	//tätä käytetään record-napin kuvien vaihdossa
-	private int recordIsPressed = 0;
-	private int playIsPressed = 0;
+	private int recordIsPressed = 0; //monitoroidaan onko nauhoitus käynnissä
+	private int playIsPressed = 0; //monitoroidaan onko toisto käynnissä
 	public String whichNote;
 	public int duration;
 	Timer timer = new Timer();
@@ -46,6 +52,26 @@ public class SeppoView extends Application implements SeppoView_IF {
 	public void init(){
 		SeppoModel_IF model = new SeppoModel();
 		kontrolleri = new SeppoControl(this, model);
+	}
+
+	//lisää filut items-listaan
+	public void listList(){
+		for (int i = 0; i < listOfFiles.length; i++) {
+	        items.add(listOfFiles[i].getName());
+	    }
+	}
+
+	//poistaa kappaleen directorysta
+	public void destruction(){
+	File targetFile = new File("C:\\Users\\Lenovo\\workspace\\RoboOhjain\\Songs\\"
+			+ (list.getSelectionModel().getSelectedItem()));
+	targetFile.delete();
+	}
+
+	public File selectedFile(){
+		File targetFile = new File("C:\\Users\\Lenovo\\workspace\\RoboOhjain\\Songs\\"
+				+ (list.getSelectionModel().getSelectedItem()));
+		return targetFile;
 	}
 
 
@@ -107,9 +133,10 @@ public class SeppoView extends Application implements SeppoView_IF {
 
     	//listan gridi erikseen
     	GridPane listGrid = new GridPane();
-    	ListView<String> list = new ListView<String>();
-    	ObservableList<String> items =FXCollections.observableArrayList (
-    		    "Ukko Nooa", "BumtsiBum intro", "mystiset bm tykitys urut", "Sonata Arctica synat");
+    	this.list = new ListView<String>();
+    	this.items =FXCollections.observableArrayList ();
+    	//lisää filut items-listaan
+    			listList();
     	list.setItems(items);
     	list.setPrefWidth(150);
     	list.setPrefHeight(250);
@@ -134,8 +161,6 @@ public class SeppoView extends Application implements SeppoView_IF {
     	playButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event){
-				//Button mode1 = (Button) event.getSource();
-				//mode1.setGraphic(playPressed);
 				//jos record on pohjassa, ei voi käyttää muita nappeja
 				if (recordIsPressed == 0){
 					if (!list.getSelectionModel().isEmpty()) {
@@ -144,11 +169,10 @@ public class SeppoView extends Application implements SeppoView_IF {
 
         				kontrolleri.sendInt(1);
 
-
 						kontrolleri.sendSong();
 
-
 						playIsPressed = 1;
+
 					//jos ei ole valittu kappaletta
 					} else {
 							songName.setPromptText("Ei valintaa");
@@ -177,16 +201,20 @@ public class SeppoView extends Application implements SeppoView_IF {
 				}
 			}
 		});
+
+
     	Button stopButton = new Button("",stop);
     	stopButton.setStyle("-fx-background-color: transparent;");
     	stopButton.setMaxWidth(Double.MAX_VALUE);
     	stopButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event){
-				//Button mode2 = (Button) event.getSource();
-				//mode2.setGraphic(stopPressed);
+
 				if (recordIsPressed == 0) {
 					if (playIsPressed == 1) {
+
+						kontrolleri.sendInt(11);
+
 						stopButton.setGraphic(stopPressed);
 						Timeline timeline = new Timeline(new KeyFrame(
 								Duration.millis(200),
@@ -222,6 +250,8 @@ public class SeppoView extends Application implements SeppoView_IF {
 				}
 			}
 		});
+
+
     	Button recordButton = new Button("",record);
     	recordButton.setStyle("-fx-background-color: transparent;");
     	recordButton.setMaxWidth(Double.MAX_VALUE);
@@ -230,22 +260,31 @@ public class SeppoView extends Application implements SeppoView_IF {
 			public void handle(ActionEvent event){
 				//tarkistus vaihdetaanko on- vai off-ikoniin
 				if (recordIsPressed == 1){
-					//Button mode3 = (Button) event.getSource();
-					//mode3.setGraphic(record);
 					recordButton.setGraphic(record);
 					recordIsPressed = 0;
-					//song.createSongTable(newSong);
+
+					//uuden kappaleen luonti tapahtuu kun nauhoitus loppuu
+					try {
+						FileOutputStream out = new FileOutputStream(
+								"C:\\Users\\Lenovo\\workspace\\RoboOhjain\\Songs\\"
+								+ newSong);
+						ObjectOutputStream oos = new ObjectOutputStream(out);
+						//oos.writeObject(list);
+						oos.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
 					songName.setPromptText("Kappale tallennettu!");
 					Timeline timeline = new Timeline(new KeyFrame(
 							Duration.millis(2000),
 							ae -> songName.setPromptText("Nimeä uusi nauhoite")));
 					timeline.play();
-					//tähän tulee varmaan ne toiminnot
+
 				} else {
-					//Button mode3 = (Button) event.getSource();
-					//mode3.setGraphic(recordPressed);
-					//uuden tallenteen nimi tallentuu kun nauhoitus aloitetaan
 					if (!songName.getText().isEmpty()) {
+
+						//toiston aikana ei voi nauhoittaa uutta kappaletta
 						if (playIsPressed == 1) {
 							recordButton.setGraphic(recordError);
 	        				Timeline timeline = new Timeline(new KeyFrame(
@@ -254,8 +293,8 @@ public class SeppoView extends Application implements SeppoView_IF {
 	        				timeline.play();
 							songName.setPromptText("Toisto käynnissä!");
 						} else {
-							//newSong = songName.getText();
-							//items.add(newSong);
+							//uuden kappaleen nimi otetaan talteen myöhemmäksi
+							newSong = songName.getText();
 							songName.clear();
 							recordButton.setGraphic(recordPressed);
 							songName.setPromptText("Nauhoitetaan...");
@@ -291,6 +330,8 @@ public class SeppoView extends Application implements SeppoView_IF {
 				}
 			}
 		});
+
+
     	Button deleteButton = new Button("",delete);
     	deleteButton.setStyle("-fx-background-color: transparent;");
     	deleteButton.setMaxWidth(Double.MAX_VALUE);
@@ -316,7 +357,9 @@ public class SeppoView extends Application implements SeppoView_IF {
 									Duration.millis(200),
 									ae -> deleteButton.setGraphic(delete)));
 							timeline.play();
+
 							items.remove(list.getSelectionModel().getSelectedItem());
+
 							list.getSelectionModel().clearSelection();
 							songName.setPromptText("Kappale poistettu!");
 							list.getSelectionModel().clearSelection();
