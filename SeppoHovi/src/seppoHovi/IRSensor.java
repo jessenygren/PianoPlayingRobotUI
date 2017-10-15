@@ -6,6 +6,11 @@ import lejos.hardware.sensor.EV3IRSensor;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
 
+/**
+ * @author Ryhm‰ 5
+ * @version 1.0
+ *
+ */
 public class IRSensor {
 	Port port;
 	SensorModes irSensor;
@@ -17,6 +22,9 @@ public class IRSensor {
 	private boolean wallCheck = false;
 
 	// KONSTRUKTORI
+	/**
+	 * Konstruktorissa luodaan uusi IR-Sensori.
+	 */
 	public IRSensor() {
 		try {
 			port = LocalEV3.get().getPort("S4");
@@ -39,6 +47,9 @@ public class IRSensor {
 	}
 
 
+	/**
+	 *  Metodilla "k‰ynnistet‰‰n" IR-sensori.
+	 */
 	public void irSensorOn() {
 		float[] irSample = new float[irDistance.sampleSize()];
 		irDistance.fetchSample(irSample, 0);
@@ -50,6 +61,10 @@ public class IRSensor {
 		// dropDistance = irSample2[0];
 	}
 
+	/**
+	 * Metodilla luetaan IR-sensorin dataa. Palautuu true:na jos sensori havaitsee liikett‰ alle 50cm p‰‰ss‰. Muuten false.
+	 * @return
+	 */
 	public boolean gestureChecker() {
 
 		if (distance <= 50) {

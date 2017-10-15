@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import lejos.robotics.subsumption.Behavior;
 import lejos.utility.Delay;
 
+/**
+ * @author Ryhmä 5
+ * @version 1.0
+ *
+ */
 public class AutoPlay implements Behavior {
 
 
@@ -15,18 +20,21 @@ public class AutoPlay implements Behavior {
 	private ArrayList<Note> list = null;
 	private Fingers fingers;
 	//private Note n;
+	private TouchSensor touch;
 
 
 
 	private volatile boolean suppressed = false;
 
-	public AutoPlay(Fingers fingers, ArrayList<Note> list, InputThread in) {
+	public AutoPlay(Fingers fingers, ArrayList<Note> list, InputThread in, TouchSensor touch) {
 		this.fingers = fingers;
 		this.list = list;
 		this.in = in;
+		this.touch = touch;
 
 	}
 
+	// Kontrolli saadaan jos saadaan InputThreadilta tieto luetusta ArrayListista.
 	public boolean takeControl() {
 
 
@@ -43,61 +51,41 @@ public class AutoPlay implements Behavior {
 		suppressed = true;
 	}
 
+	// Action soittaa valitun kappaleen. Kappale saadaan tietokoneohjelmalta.
 	public void action() {
 		suppressed = false;
 
-		Note uusiNuotti = new Note("A", 0);
-
-
-
-		int delay;
 
 		list = in.getList();
 
-	/*	for (Note n : list){
-			System.out.println(n.getKey());
-			System.out.println(n.getDelay());
-		}*/
 
-		ArrayList<Note> uusiArray = new ArrayList<Note>();
+		while (in.taulukkoLuettu() == true){
+		for (Note n : list){
 
-		for (int i = 0; i < list.size(); i++){
-			Note n = list.get(i);
-			Note uusiNote = new Note(n.getKey(), n.getDelay());
-			uusiArray.add(uusiNote);
-		}
+			fingers.play(fingers.charInterpreter(n.getKey()), n.getDelay());
 
-		Note[] taulukko = new Note[uusiArray.size()];
 
-		fingers.autoPlay(uusiArray.toArray(taulukko));
-
-		/*
-		for (int i = 0; i < list.size(); i++){
-			Note n = list.get(i);
-			String to = (String)n.getKey();
-			String from;
-			if (i == 0){
-				fingers.playFrom(null, to);
-				from = to;
+			// HÄTÄSEIS
+			if (touch.emergency() == true){
+				System.exit(0);
 			}
 
-			if (i > 0){
-			System.out.println(to);
-			delay = n.getDelay();
-			fingers.playFrom(from, to);
-			from = to;
+			/// STOP
+			if (in.getI() == 0){
+				in.setI(0);
+				fingers.releaseAll();
+				break;
+			}
 
 		}
-*/
-		//Note[] returnArray = new Note [list.size()];
-		//System.out.println(n.getKey() + " " + n.getDelay());
-		//fingers.autoPlay(list.toArray(returnArray));
 
-		//fingers.playFrom(null, uusiNuotti.getKey());
+		in.setLuettu(false);
 
+		}
+
+		fingers.releaseAll();
 		in.setI(0);
 		System.out.println(in.getI());
-
 
 		while (!suppressed)
 			Thread.yield();

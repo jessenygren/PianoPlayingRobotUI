@@ -2,20 +2,27 @@ package seppoHovi;
 
 import lejos.robotics.subsumption.Behavior;
 
+/**
+ * @author Ryhmä 5
+ * @version 1.0
+ *
+ */
 public class UserPlay implements Behavior {
 
 	InputThread in;
 	private Fingers fingers;
+	private TouchSensor touch;
 	private volatile boolean suppressed = false;
 
-	public UserPlay(Fingers fingers, InputThread in) {
+	public UserPlay(Fingers fingers, InputThread in, TouchSensor touch) {
 		this.fingers = fingers;
 		this.in = in;
+		this.touch = touch;
 	}
 
+	// Jos saa InputThreadin i saa arvokseen 2-9 aktivoituu.
 	public boolean takeControl() {
 
-	//	System.out.println(in.getI());
 
 		if (in.getI() >= 2 && in.getI() <= 9) {
 			return true;
@@ -28,9 +35,9 @@ public class UserPlay implements Behavior {
 		suppressed = true;
 	}
 
+	// Action toistaa painetun painikkeen.
 	public void action() {
 
-		/// TÄMÄN LOGIIKKA EI TOIMI, EI NOSTA
 
 		suppressed = false;
 		boolean pressed = false;
@@ -42,7 +49,7 @@ public class UserPlay implements Behavior {
 		while (in.getI() >= 2 && in.getI() <= 9) {
 
 			if (pressed == false) {
-				fingers.play(fingers.intInterpreter(in.getI()), 0);
+				fingers.userPlay(fingers.intInterpreter(in.getI()), 0);
 				compare = in.getI();
 				pressed = true;
 			}
@@ -55,16 +62,24 @@ public class UserPlay implements Behavior {
 				}
 
 				if (in.getI() == shut && compare == shut){
+					in.setI(0);
 					break;
 				}
 
 			}
 
 			if (pressed == true && shut == in.getI()) {
+				in.setI(0);
 				break;
 			}
 
+			if (touch.emergency() == true){
+				System.exit(0);
+			}
+
 		}
+
+
 
 		in.setI(0);
 		fingers.releaseAll();

@@ -2,20 +2,28 @@ package seppoHovi;
 
 import lejos.robotics.subsumption.Behavior;
 
+/**
+ * @author Ryhmä 5
+ * @version 1.0
+ *
+ */
 public class Airplay implements Behavior {
 
 	private Fingers fingers;
 	private IRSensor ir;
+	private TouchSensor touch;
 	InputThread in;
 
 	private volatile boolean suppressed = false;
 
-	public Airplay(Fingers fingers, IRSensor ir, InputThread in) {
+	public Airplay(Fingers fingers, IRSensor ir, InputThread in, TouchSensor touch) {
 		this.fingers = fingers;
 		this.ir = ir;
 		this.in = in;
+		this.touch = touch;
 	}
 
+	// Kontrolli saadaan jos käden vie sopivalle etäisyydelle ir-sensorista.
 	public boolean takeControl() {
 		ir.irSensorOn();
 
@@ -29,11 +37,10 @@ public class Airplay implements Behavior {
 		suppressed = true;
 	}
 
+	//	Actionissa voidaan soittaa käyttämällä ir-sensoria.
 	public void action() {
 		suppressed = false;
 		boolean held = false;
-		String to = fingers.intInterpreter(in.getI());
-		String from = null;
 		int compare = 0;
 		int shut = 10;
 
@@ -67,6 +74,9 @@ public class Airplay implements Behavior {
 				break;
 			}
 
+			if (touch.emergency() == true){
+				System.exit(0);
+			}
 		}
 
 		in.setI(0);

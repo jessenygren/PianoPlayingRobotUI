@@ -1,32 +1,40 @@
 package seppoHovi;
 
-import lejos.hardware.ev3.LocalEV3;
 import Model.Note;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
-import lejos.hardware.port.Port;
-import lejos.hardware.sensor.EV3IRSensor;
-import lejos.hardware.sensor.SensorModes;
+
 import lejos.robotics.RegulatedMotor;
-import lejos.robotics.SampleProvider;
+
 import lejos.utility.Delay;
 
+/**
+ * @author Ryhmä 5
+ * @version 1.0
+ *
+ */
 public class Fingers {
 
-	final int left = 40;
-	final int right = -40;
+	/**
+	 * Integer muuttujat left ja right ovat Final tyyppisia ja kuvaavat moottorien käännöksen astelukua.
+	 */
+	private final int left = 40;
+	private final int right = -40;
 
 	RegulatedMotor a;
 	RegulatedMotor b;
 	RegulatedMotor c;
 	RegulatedMotor d;
 
-
+	/**
+	 * String tyyppiset muuttujat from ja to ovat aloitusarvoltaan null. Muuttuja from:lla kuvataan mistä koskettimesta soitetaan muuttujan to koskettimeen.
+	 */
 	private String from = null;
 	private String to = null;
 
-
-
+	/**
+	 *	Konstruktorissa luodaan oliot neljälle moottorille. Moottorit nimetty a, b, c ja d nimisiksi.
+	 */
 	public Fingers() {
 		try {
 			a = new EV3LargeRegulatedMotor(MotorPort.A);
@@ -41,13 +49,9 @@ public class Fingers {
 
 	}
 
-	private int powerLevel = 0; // moottorin nopeus
-	private int travel = 0; // millimetrit
-	private int delay = 0; // viive
-	private String key;
-
-	private int position = 0;
-
+	/**
+	 * Meotodilla aloitetaan moottorien synkronointi.
+	 */
 	public void startSync() {
 
 		a.synchronizeWith(new RegulatedMotor[] { b, c, d });
@@ -56,8 +60,13 @@ public class Fingers {
 
 	}
 
-	// päättää synkronoinnin
 
+
+
+
+	/**
+	 * Metodi päättää moottorien synkronoinnin.
+	 */
 	public void endSync() {
 		a.endSynchronization();
 		a.waitComplete();
@@ -67,87 +76,9 @@ public class Fingers {
 
 	}
 
-	public void all(int powerLevel, int travel, int delay) {
-
-		a.setSpeed(powerLevel);
-
-		b.setSpeed(powerLevel);
-
-		c.setSpeed(powerLevel);
-
-		d.setSpeed(powerLevel);
-		startSync();
-
-		a.rotate(travel, true);
-		b.rotate(travel, true);
-		c.rotate(travel, true);
-		d.rotate(travel, true);
-
-		endSync();
-	}
-
-	// TEsti
-
-	public void playAll() {
-		a.rotate(20);
-		a.rotate(-40);
-
-		startSync();
-		a.rotate(20);
-		b.rotate(20);
-		endSync();
-
-		b.rotate(-40);
-
-		startSync();
-		b.rotate(20);
-		c.rotate(20);
-		endSync();
-
-		c.rotate(-40);
-
-		startSync();
-		c.rotate(20);
-		d.rotate(20);
-		endSync();
-
-		d.rotate(-40);
-
-		d.rotate(20);
-
-	}
-
-	public void playReverse() {
-
-		d.rotate(-20);
-		d.rotate(40);
-
-		startSync();
-		d.rotate(-20);
-		c.rotate(-20);
-		endSync();
-
-		c.rotate(40);
-
-		startSync();
-		c.rotate(-20);
-		b.rotate(-20);
-		endSync();
-
-		b.rotate(40);
-
-		startSync();
-		b.rotate(-20);
-		a.rotate(-20);
-		endSync();
-
-		a.rotate(40);
-
-		a.rotate(-20);
-
-	}
-
-
+	/**
+	 * Metodi palauttaa kaikki sormet vakio aloitusasentoonsa.
+	 */
 	public void releaseAll() {
 
 		a.rotateTo(0);
@@ -157,6 +88,307 @@ public class Fingers {
 
 	}
 
+
+	/**
+	 * Metodilla voidaan liikuttaa robotin sormia mahdollisimman tehokkaasti. Metodi on tarkoitettu käytettäväksi automaatisoidun soiton tueksi.
+	 * @param from, parametri kuvaa mistä sormesta (koskettimesta) liikutaan.
+	 * @param to, parametri kuvaa mihin sormeen (koskettimeen) liikutaan.
+	 */
+	public void autoplayFrom(String from, String to){
+		a.setSpeed(1000);
+		b.setSpeed(1000);
+		c.setSpeed(1000);
+		d.setSpeed(1000);
+
+		if (from == null) {
+			if (to == "C") {
+				startSync();
+				a.rotateTo(left);
+				endSync();
+			} else if (to == "D") {
+				startSync();
+				a.rotateTo(right);
+				endSync();
+			} else if (to == "E") {
+				startSync();
+				b.rotateTo(left);
+				endSync();
+			} else if (to == "F") {
+				startSync();
+				b.rotateTo(right);
+				endSync();
+			} else if (to == "G") {
+				startSync();
+				c.rotateTo(left);
+				endSync();
+			} else if (to == "A") {
+				startSync();
+				c.rotateTo(right);
+				endSync();
+			} else if (to == "H") {
+				startSync();
+				d.rotateTo(left);
+				endSync();
+			} else if (to == "C2") {
+				startSync();
+				d.rotateTo(right);
+				endSync();
+			}
+		}
+
+		/// C JA D soitto muihin sointuihin
+		if (from == "C" || from == "D") {
+
+			if (from == "C" && to == "D") {
+				startSync();
+				a.rotateTo(right);
+				endSync();
+			}
+
+			if (from == "D" && to == "C") {
+				startSync();
+				a.rotateTo(left);
+				endSync();
+			}
+
+			if (from == "C" && to == "C") {
+				a.rotateTo(0);
+				a.rotateTo(left);
+
+			}
+
+			if (from == "D" && to == "D") {
+				a.rotateTo(0);
+				a.rotateTo(right);
+
+			}
+
+			if (to == "E") {
+				startSync();
+				a.rotateTo(0);
+				b.rotateTo(left);
+				endSync();
+			}
+			if (to == "F") {
+				startSync();
+				a.rotateTo(0);
+				b.rotateTo(right);
+				endSync();
+			}
+			if (to == "G") {
+				startSync();
+				a.rotateTo(0);
+				c.rotateTo(left);
+				endSync();
+			}
+			if (to == "A") {
+				startSync();
+				a.rotateTo(0);
+				c.rotateTo(right);
+				endSync();
+			}
+			if (to == "H") {
+				startSync();
+				a.rotateTo(0);
+				d.rotateTo(left);
+				endSync();
+			}
+			if (to == "C2") {
+				startSync();
+				a.rotateTo(0);
+				d.rotateTo(right);
+				endSync();
+			}
+			if (to == null) {
+				a.rotateTo(0);
+			}
+
+		}
+
+		if (from == "E" || from == "F") {
+
+			if (from == "E" && to == "F") {
+				b.rotateTo(right);
+			}
+
+			if (from == "F" && to == "E") {
+				b.rotateTo(left);
+			}
+
+			if (from == "E" && to == "E") {
+				b.rotateTo(0);
+				b.rotateTo(left);
+			}
+
+			if (from == "F" && to == "F") {
+				b.rotateTo(0);
+				b.rotateTo(right);
+			}
+
+			if (to == "C") {
+				startSync();
+				b.rotateTo(0);
+				a.rotateTo(left);
+				endSync();
+			}
+			if (to == "D") {
+				startSync();
+				b.rotateTo(0);
+				a.rotateTo(right);
+				endSync();
+			}
+			if (to == "G") {
+				startSync();
+				b.rotateTo(0);
+				c.rotateTo(left);
+				endSync();
+			}
+			if (to == "A") {
+				startSync();
+				b.rotateTo(0);
+				c.rotateTo(right);
+				endSync();
+			}
+			if (to == "H") {
+				startSync();
+				b.rotateTo(0);
+				d.rotateTo(left);
+				endSync();
+			}
+			if (to == "C2") {
+				startSync();
+				b.rotateTo(0);
+				d.rotateTo(right);
+				endSync();
+			}
+
+		}
+
+		if (from == "G" || from == "A") {
+
+			if (from == "G" && to == "A") {
+				c.rotateTo(right);
+			}
+
+			if (from == "A" && to == "G") {
+				c.rotateTo(left);
+			}
+
+			if (from == "G" && to == "G") {
+				c.rotateTo(0);
+				c.rotateTo(left);
+			}
+
+			if (from == "A" && to == "A") {
+				c.rotateTo(0);
+				c.rotateTo(right);
+			}
+
+			if (to == "E") {
+				startSync();
+				c.rotateTo(0);
+				b.rotateTo(left);
+				endSync();
+			}
+			if (to == "F") {
+				startSync();
+				c.rotateTo(0);
+				b.rotateTo(right);
+				endSync();
+			}
+			if (to == "C") {
+				startSync();
+				c.rotateTo(0);
+				a.rotateTo(left);
+				endSync();
+			}
+			if (to == "D") {
+				startSync();
+				c.rotateTo(0);
+				a.rotateTo(right);
+				endSync();
+			}
+			if (to == "H") {
+				startSync();
+				c.rotateTo(0);
+				d.rotateTo(left);
+				endSync();
+			}
+			if (to == "C2") {
+				startSync();
+				c.rotateTo(0);
+				d.rotateTo(right);
+				endSync();
+			}
+
+		}
+
+		if (from == "H" || from == "C2") {
+
+			if (from == "H" && to == "C2") {
+				d.rotateTo(right);
+			}
+
+			if (from == "C2" && to == "H") {
+				d.rotateTo(left);
+			}
+
+			if (from == "H" && to == "H") {
+				d.rotateTo(0);
+				d.rotateTo(left);
+			}
+
+			if (from == "C2" && to == "C2") {
+				d.rotateTo(0);
+				d.rotateTo(right);
+			}
+
+			if (to == "E") {
+				startSync();
+				d.rotateTo(0);
+				b.rotateTo(left);
+				endSync();
+			}
+			if (to == "F") {
+				startSync();
+				d.rotateTo(0);
+				b.rotateTo(right);
+				endSync();
+			}
+			if (to == "G") {
+				startSync();
+				d.rotateTo(0);
+				c.rotateTo(left);
+				endSync();
+			}
+			if (to == "A") {
+				startSync();
+				d.rotateTo(0);
+				c.rotateTo(right);
+				endSync();
+			}
+			if (to == "C") {
+				startSync();
+				d.rotateTo(0);
+				a.rotateTo(left);
+				endSync();
+			}
+			if (to == "D") {
+				startSync();
+				d.rotateTo(0);
+				a.rotateTo(right);
+				endSync();
+			}
+
+		}
+
+	}
+
+	/**
+	 * Metodilla voidaan liikuttaa robotin sormia mahdollisimman tehokkaasti. Metodi on tarkoitettu käytettäväksi manuaalisen soiton ja Airplayn tueksi.
+	 * @param from, parametri kuvaa mistä sormesta (koskettimesta) liikutaan.
+	 * @param to, parametri kuvaa mihin sormeen (koskettimeen) liikutaan.
+	 */
 	public void playFrom(String from, String to) {
 
 		a.setSpeed(1000);
@@ -215,16 +447,13 @@ public class Fingers {
 				endSync();
 			}
 
-			if (from == "C" && to == "C"){
-
+			if (from == "C" && to == "C") {
 
 				a.rotateTo(left);
 
-
 			}
 
-			if (from == "D" && to == "D"){
-
+			if (from == "D" && to == "D") {
 
 				a.rotateTo(right);
 
@@ -282,12 +511,12 @@ public class Fingers {
 				b.rotateTo(left);
 			}
 
-			if (from == "E" && to == "E"){
+			if (from == "E" && to == "E") {
 
 				b.rotateTo(left);
 			}
 
-			if (from == "F" && to == "F"){
+			if (from == "F" && to == "F") {
 
 				b.rotateTo(right);
 			}
@@ -341,16 +570,15 @@ public class Fingers {
 				c.rotateTo(left);
 			}
 
-			if (from == "G" && to == "G"){
+			if (from == "G" && to == "G") {
 
 				c.rotateTo(left);
 			}
 
-			if (from == "A" && to == "A"){
+			if (from == "A" && to == "A") {
 
 				c.rotateTo(right);
 			}
-
 
 			if (to == "E") {
 				startSync();
@@ -401,12 +629,12 @@ public class Fingers {
 				d.rotateTo(left);
 			}
 
-			if (from == "H" && to == "H"){
+			if (from == "H" && to == "H") {
 
 				d.rotateTo(left);
 			}
 
-			if (from == "C2" && to == "C2"){
+			if (from == "C2" && to == "C2") {
 
 				d.rotateTo(right);
 			}
@@ -452,13 +680,40 @@ public class Fingers {
 
 	}
 
+	/**
+	 * Automaattisen soiton mahdollistava metodi.
+	 * @param key, parametriksi oliosta saatu arvo joka vastaa haluttua kosketinta.
+	 * @param delay, parametriksi oliosta saatu viivettä kuvaava arvo.
+	 */
 	public void play(String key, int delay) {
 
 		from = to;
 		to = key;
 
-		if (from != to){
+		if (from != to) {
 			Delay.msDelay(350);
+		}
+
+		autoplayFrom(from, to);
+
+		Delay.msDelay(delay);
+
+	}
+
+	/**
+	 *
+	 * Manuaalisen soiton mahdollistava metodi.
+	 * @param key, arvoksi soitettava kosketin.
+	 * @param delay, arvoksi viive kuinka kauan kosketinta pidetään pohjassa.
+	 */
+	public void userPlay(String key, int delay) {
+
+		from = to;
+		to = key;
+
+		if (from != to) {
+			// ennen delay 350
+			Delay.msDelay(0);
 		}
 
 		playFrom(from, to);
@@ -467,9 +722,11 @@ public class Fingers {
 
 	}
 
-
+	/**
+	 * Metodi joka muuttaa IR-sensorilta saadun datan vastaamaan sopivaa kosketinta.
+	 * @param distance, parametriksi sensorilta saatu float tyyppinen etäisyystieto.
+	 */
 	public void airPlay(float distance) {
-
 
 		if (distance > 5 && distance <= 11.25) {
 
@@ -501,15 +758,46 @@ public class Fingers {
 
 	}
 
-	public void autoPlay(Note[] song) {
-
-		for (int i = 0; i < song.length; i++) {
-
-			play(song[i].getKey(), song[i].getDelay());
-
+	/**
+	 * Metodi kääntää char tyyppisen muuttujan vastaamaan String-tyyppistä muuttujaa.
+	 * @param c, parametriksi Note-olion char tyyppinen key muuttuja.
+	 * @return Palauttaa sopivan String-muuttujan.
+	 */
+	public String charInterpreter(char c) {
+		String key = null;
+		if (c == 'c') {
+			key = "C";
 		}
+		if (c == 'd') {
+			key = "D";
+		}
+		if (c == 'e') {
+			key = "E";
+		}
+		if (c == 'f') {
+			key = "F";
+		}
+		if (c == 'g') {
+			key = "G";
+		}
+		if (c == 'a') {
+			key = "A";
+		}
+		if (c == 'h') {
+			key = "H";
+		}
+		if (c == 'v') {
+			key = "C2";
+		}
+		return key;
 	}
 
+
+	/**
+	 * Metodi kääntää integer-muuttujan arvon vastaamaan jotain tiettyä String-muuttujaa. String-muuttujat kuvaavat soitettavia koskettimia.
+	 * @param i, parametriksi arvo väliltä 2-9, vastaa soitettavaa kosketinta.
+	 * @return Palauttaa sopivan String-muuttujan, joka vastaa pianon C-sävelasteikon kirjainta.
+	 */
 	public String intInterpreter(int i) {
 		String key = null;
 
@@ -540,6 +828,11 @@ public class Fingers {
 		return key;
 	}
 
+	/**
+	 * Metodi kääntää float tyyppisen tiedon integer tyyppiseksi. Muuttaa IR-sensorin dataa vastaavaan muotoon, kuin tietokoneohjelmalta lähetetty data, joka saadaan näppäimistöltä.
+	 * @param distance, parametri sisältää IR-sensorilta saadun datan.
+	 * @return Palautuu integer tyyppisenä datana arvona 0, 2-10;
+	 */
 	public int irInterpreter(float distance) {
 		int key = 0;
 
@@ -573,8 +866,9 @@ public class Fingers {
 		return key;
 	}
 
-
-
+	/**
+	 * Metodi pysäyttää moottorit
+	 */
 	public void stop() {
 		startSync();
 
@@ -586,24 +880,4 @@ public class Fingers {
 		endSync();
 	}
 
-	public void battle(int delay) {
-
-		a.setAcceleration(10000);
-
-		c.setAcceleration(10000);
-
-		a.setSpeed(1000);
-		b.setSpeed(1000);
-		c.setSpeed(1000);
-		d.setSpeed(1000);
-
-		startSync();
-
-		a.rotate(-6000);
-		b.rotate(6000);
-		c.rotate(-6000);
-		d.rotate(6000);
-
-		endSync();
-	}
 }

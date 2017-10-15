@@ -8,20 +8,40 @@ import Model.Note;
 
 import lejos.utility.Delay;
 
+/**
+ * @author Ryhmä 5
+ * @version 1.0
+ *
+ */
 public class InputThread extends Thread {
+
 
 	ObjectInputStream in;
 
+	/**
+	 * muuttuja int i:hin otetaan vastaan tietokoneelta saatuja komentoja.
+	 */
 	private int i = 0;
+	/**
+	 * ArrayList<Note> list:iin tallennetaan tietokoneelta saatuja ArrayList<Note> listoja.
+	 */
 	private ArrayList<Note> list;
 	private Note n;
+	/**
+	 * boolean luettu:lla varmistetaan, että tietokoneelta on saatu vastaanotettua ArrayList
+	 */
 	boolean luettu =  false;
 
 
+	/**
+	 * Konstruktorissa ObjectInputStream
+	 * @param in, saa parametrikseen ObjectInputStreamin
+	 */
 	public InputThread(ObjectInputStream in) {
 		this.in = in;
 	}
 
+	//Säie ottaa vastaan dataa tietokoneelta.
 	@Override
 	public void run() {
 		while (true) {
@@ -48,7 +68,16 @@ public class InputThread extends Thread {
 		}
 	}
 
+	/**
+	 * Metodi palauttaa booleanin luettu arvon.
+	 * @return
+	 */
 	public boolean taulukkoLuettu(){
+		return luettu;
+	}
+
+	public boolean setLuettu(boolean uusi){
+		this.luettu = uusi;
 		return luettu;
 	}
 

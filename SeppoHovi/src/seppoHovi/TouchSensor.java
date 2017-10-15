@@ -6,6 +6,11 @@ import lejos.hardware.sensor.EV3TouchSensor;
 import lejos.hardware.sensor.SensorMode;
 import lejos.robotics.SampleProvider;
 
+/**
+ * @author Ryhm‰ 5
+ * @version 1.0
+ *
+ */
 public class TouchSensor {
 
 	Port port;
@@ -13,6 +18,9 @@ public class TouchSensor {
 	SampleProvider touchSensor;
 	private float pressCheck;
 
+	/**
+	 * Konstruktorissa luodaan kosketussensori.
+	 */
 	public TouchSensor() {
 		try {
 			port = LocalEV3.get().getPort("S3");
@@ -31,6 +39,9 @@ public class TouchSensor {
 
 	}
 
+	/**
+	 * Metodilla "k‰ynnistet‰‰n" sensori, eli "kuunnellaan" sensorin antamaa dataa.
+	 */
 	public void sensorListener() {
 		float[] sample = new float[touchSensor.sampleSize()];
 		touchSensor.fetchSample(sample, 0);
@@ -41,6 +52,10 @@ public class TouchSensor {
 	// Jos "H‰t‰ seis" -nappia painetaan, antaa Shutdown luokkaan tiedon
 	// pys‰ytt‰‰ laitteen.
 
+	/**
+	 * Metodi havaitsee jos kosketussensori aktivoituu.
+	 * @return palauttaa joko true tai false tilanteen mukaan.
+	 */
 	public boolean emergency() {
 
 		sensorListener();
