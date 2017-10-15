@@ -11,6 +11,11 @@ import java.util.Scanner;
 
 import Model.Note;
 
+/**
+ * Luokka kappaleiden manuaalista luontia varten.
+ * @author tiimi 5
+ *
+ */
 public class SongFactory {
 
 	static Scanner lukija = new Scanner(System.in);
@@ -25,24 +30,24 @@ public class SongFactory {
 
 		ArrayList<Note> list = new ArrayList<Note>();
 
-		System.out.println("Syötä biisin nimi ja paina ENTER");
+		System.out.println("SyÃ¶tÃ¤ biisin nimi ja paina ENTER");
 		name = lukija.nextLine();
 
 		do {
 			System.out.println("-----------------------------------------------------------");
-			System.out.println("Syötä kosketin, pienellä, ja paina ENTER (c,d,e,f,g,a,h,v)");
+			System.out.println("SyÃ¶tÃ¤ kosketin, pienellÃ¤, ja paina ENTER (c,d,e,f,g,a,h,v)");
 			key = lukija.next().trim().charAt(0);
 
 			if (key != 'c' && key != 'd' && key != 'e' && key != 'f' && key != 'g' && key != 'a' && key != 'h' && key != 'v'){
 				System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-				System.out.println("!!!!!!!!!!!!!!!!!SYÖTTÄMÄSI KIRJAIN ON VIRHEELLINEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				System.out.println("!!!!!!!!!!!!!!!!!SYÃ–TTÃ„MÃ„SI KIRJAIN ON VIRHEELLINEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 				System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 				System.out.println("Ohjelma sulkeutuu");
 				System.exit(0);
 			}
 
 			System.out.println("-----------------------------------------------------------");
-			System.out.println("Syötä delay (ms) ja paina ENTER");
+			System.out.println("SyÃ¶tÃ¤ delay (ms) ja paina ENTER");
 			System.out.println("------------------------------------------");
 			delay = lukija.nextInt();
 
@@ -81,7 +86,7 @@ public class SongFactory {
 			oos.writeObject(list);
 			oos.close();
 		} catch (Exception e) {
-			System.out.println("Kappaleen tallennus epäonnistui!!");
+			System.out.println("Kappaleen tallennus epÃ¤onnistui!!");
 			e.printStackTrace();
 		}
 

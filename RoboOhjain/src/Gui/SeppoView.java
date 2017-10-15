@@ -35,22 +35,62 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+/**
+ * GUI
+ * @author tiimi 5
+ * @version 1.0
+ *
+ */
 public class SeppoView extends Application implements SeppoView_IF {
 
 	private SeppoControl_IF kontrolleri;
+	/**
+	 * Luotujen kappaletiedostojen tallennuskohde
+	 */
 	private File folder = new File("C:\\Users\\Jesme\\workspace\\RoboOhjain\\Songs\\");
+	/**
+	 * Taulukko joka sisältää tallennuskohteen tiedostot
+	 */
 	private File[] listOfFiles = folder.listFiles();
+	/**
+	 * GUI:ssa näkyvä listaus kappaleista
+	 */
 	private ObservableList<String> items;
-	ListView<String> list;
-	private String newSong; // uuden nauhoitteen nimi
+	private ListView<String> list;
+	/**
+	 * Käyttäjän syöttämä nimi uudelle nauhoitteelle
+	 */
+	private String newSong;
 	static DataOutputStream out;
-	private int recordIsPressed = 0; // monitoroidaan onko nauhoitus käynnissä
-	private int playIsPressed = 0; // monitoroidaan onko toisto käynnissä
+	/**
+	 * Tämä muuttuja pitää kirjaa siitä onko nauhoitus käynnissä.
+	 * Jos nauhoitus on aktiivisena, muiden nappien käyttö sekä toiminnot estetään.
+	 * Jos muuttujan arvo on 1, nauhoitus on käynnissä ja käyttäjän soittamat nuotit tallennetaan nuottilistaan.
+	 * Myös kappaleiden tallennus riippuu tästä: uusi tiedosto luodaan kun nauhoitus lopetetaan, ts. kun muuttuja muuttuu 1 -> 0
+	 *
+	 */
+	private int recordIsPressed = 0;
+	/**
+	 * Tämä muuttuja pitää kirjaa siitä onko kappaleen toisto käynnissä.
+	 * Arvo on 1 kun toisto on käynnissä ja 0 kun mitään ei toisteta.
+	 * Stop-nappi saa tällä tiedon koska se voi pysäyttää toiston.
+	 * Kappaleiden poistaminen ja nauhoitus estetään kun toisto on päällä.
+	 *
+	 */
+	private int playIsPressed = 0;
 	public String whichNote;
 	public int duration;
 	Timer timer = new Timer();
 
+	/**
+	 * Song-listaan lisätään nuotti-olioita mikäli nauhoitus on käynnissä.
+	 * Kun nauhoitus lopetetaan, valmis lista tallennetaan tiedostona kohdekansioon.
+	 */
 	ArrayList<Note> song = new ArrayList<Note>();
+	/**
+	 * Note-luokkaan kirjataan soitetun nuotin tiedot:
+	 * mikä nuotti on kyseessä sekä kuinka kauan sitä painettiin.
+	 */
 	Note note;
 
 	@Override
@@ -62,10 +102,9 @@ public class SeppoView extends Application implements SeppoView_IF {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		// SongBank song = new SongBank();
 		kontrolleri.connect();
 
-		// kuvat
+
 		ImageView noPress = new ImageView(new Image(new FileInputStream("images/none.png")));
 		ImageView cPress = new ImageView(new Image(new FileInputStream("images/c.png")));
 		ImageView dPress = new ImageView(new Image(new FileInputStream("images/d.png")));
@@ -123,8 +162,9 @@ public class SeppoView extends Application implements SeppoView_IF {
 		playButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				// jos record on pohjassa, ei voi käyttää muita nappeja
+				// toisto on mahdollista jos record-nappi ei ole pohjassa
 				if (recordIsPressed == 0) {
+					//jos listasta on valittu jokin kappale, toisto on mahdollista
 					if (!list.getSelectionModel().isEmpty()) {
 						playButton.setGraphic(playPressed);
 						songName.setPromptText("Toistetaan...");
@@ -133,9 +173,11 @@ public class SeppoView extends Application implements SeppoView_IF {
 
 						kontrolleri.sendSong();
 						System.out.println("Soittaaa");
+
+						//merkitään play-nappi painetuksi
 						playIsPressed = 1;
 
-						// jos ei ole valittu kappaletta
+					// jos ei ole valittu kappaletta, tulee virheilmoitus
 					} else {
 						songName.setPromptText("Ei valintaa");
 						playButton.setGraphic(playError);
@@ -146,8 +188,8 @@ public class SeppoView extends Application implements SeppoView_IF {
 								ae -> songName.setPromptText("Nimeä uusi nauhoite")));
 						timeline.play();
 					}
+				// jos record on pohjassa, ei voi käyttää muita nappeja
 				} else {
-					// vilkuttaa nappia mahdollisimman epäoptimoidulla tavalla
 					songName.setPromptText("Nauhoitus käynnissä!");
 					Timeline timeline = new Timeline(
 							new KeyFrame(Duration.millis(2000), ae -> songName.setPromptText("Nauhoitetaan...")));
@@ -165,9 +207,10 @@ public class SeppoView extends Application implements SeppoView_IF {
 		stopButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-
+				// jos record on pohjassa, ei voi käyttää muita nappeja
 				if (recordIsPressed == 0) {
 
+					//kappaleen keskeytys toimii jos toisto on käynnissä
 					if (playIsPressed == 1) {
 
 						kontrolleri.sendInt(0);
@@ -177,9 +220,18 @@ public class SeppoView extends Application implements SeppoView_IF {
 								new KeyFrame(Duration.millis(200), ae -> stopButton.setGraphic(stop)));
 						timeline.play();
 						playButton.setGraphic(play);
+
+						//asetetaan play-nappi painamattomaksi kun toisto on keskeytetty
 						playIsPressed = 0;
 						songName.setPromptText("Nimeä uusi nauhoite");
+
+					// jos ei ole valittu kappaletta, tulee virheilmoitus
 					} else {
+						// seuraavat rivit hoitavat virheilmoituksen graafisen osan
+						// napin ikoni vaihdetaan punaiseksi ja sitä näytetään 100ms ajan
+						// nappi vaihdetaan takaisin normaalitilaan
+						// nimikenttään tulostetaan virheilmoitus jota näytetään kaksi sekuntia
+						// sitten teksti vaihdetaan takaisin oletustilaan
 						songName.setPromptText("Ei valintaa");
 						stopButton.setGraphic(stopError);
 						Timeline timeline = new Timeline(
@@ -190,7 +242,7 @@ public class SeppoView extends Application implements SeppoView_IF {
 						timeline.play();
 					}
 				} else {
-					// vilkuttaa nappia mahdollisimman epäoptimoidulla tavalla
+					// jos record on pohjassa, ei voi käyttää muita nappeja
 					songName.setPromptText("Nauhoitus käynnissä!");
 					Timeline timeline = new Timeline(
 							new KeyFrame(Duration.millis(2000), ae -> songName.setPromptText("Nauhoitetaan...")));
@@ -208,22 +260,27 @@ public class SeppoView extends Application implements SeppoView_IF {
 		recordButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				// tarkistus vaihdetaanko on- vai off-ikoniin
+				// nauhoituksen ollessa käynnissä myös nauhoituksen keskeytys toimii
 				if (recordIsPressed == 1) {
 					recordButton.setGraphic(record);
+
+					// merkitään että nauhoitus ei ole enää käynnissä
 					recordIsPressed = 0;
 
+					// uuden kappaleen luonti tapahtuu kun nauhoitus loppuu
+					//tiedoston nimeksi asetetaan newSong-muuttujaan tallennettu nimi
 					createSong(newSong);
 					items.add(newSong);
 
-					// uuden kappaleen luonti tapahtuu kun nauhoitus loppuu
-
+					// näytetään ilmoitus tallennuksesta kahden sekunnin ajan
 					songName.setPromptText("Kappale tallennettu!");
 					Timeline timeline = new Timeline(
 							new KeyFrame(Duration.millis(2000), ae -> songName.setPromptText("Nimeä uusi nauhoite")));
 					timeline.play();
 
+				// jos nauhoitus ei ole päällä
 				} else {
+					// jos käyttäjä on kirjoittanut kappaleen nimen
 					if (!songName.getText().isEmpty()) {
 
 						// toiston aikana ei voi nauhoittaa uutta kappaletta
@@ -233,9 +290,9 @@ public class SeppoView extends Application implements SeppoView_IF {
 									new KeyFrame(Duration.millis(100), ae -> recordButton.setGraphic(record)));
 							timeline.play();
 							songName.setPromptText("Toisto käynnissä!");
+						//
 						} else {
-							// uuden kappaleen nimi otetaan talteen
-							// myöhemmäksi
+							// uuden kappaleen nimi otetaan talteen myöhemmäksi
 							newSong = songName.getText();
 							songName.clear();
 							recordButton.setGraphic(recordPressed);
@@ -243,7 +300,11 @@ public class SeppoView extends Application implements SeppoView_IF {
 							recordIsPressed = 1;
 
 						}
+
+					// jos uutta kappaletta ei ole nimetty
 					} else {
+
+						//jos toisto on käynnissä, tulee virheilmoitus
 						if (playIsPressed == 1) {
 							recordButton.setGraphic(recordError);
 							Timeline timeline = new Timeline(
@@ -254,6 +315,8 @@ public class SeppoView extends Application implements SeppoView_IF {
 									new KeyFrame(Duration.millis(2000), ae -> songName.setPromptText("Toistetaan...")));
 							timeline.play();
 							songName.setPromptText("Toisto käynnissä!");
+
+						// käyttäjää pyydetään antamaan nimi ennen nauhoitusta
 						} else {
 							recordButton.setGraphic(recordError);
 							Timeline timeline = new Timeline(
@@ -275,8 +338,16 @@ public class SeppoView extends Application implements SeppoView_IF {
 		deleteButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
+
+				//hävettää tämmöinen if-else viidakko
+
+
 				if (recordIsPressed == 0) {
+
+					// tarkastetaan että jokin kappale on valittu
 					if (!list.getSelectionModel().isEmpty()) {
+
+						//kappaleita ei voi poistaa toiston aikana
 						if (playIsPressed == 1) {
 							deleteButton.setGraphic(deleteError);
 							Timeline timeline = new Timeline(
@@ -286,25 +357,31 @@ public class SeppoView extends Application implements SeppoView_IF {
 							timeline = new Timeline(
 									new KeyFrame(Duration.millis(2000), ae -> songName.setPromptText("Toistetaan...")));
 							timeline.play();
+
+						// jos toisto ei ole käynnissä, tämä poistaa kappaleen
 						} else {
 							deleteButton.setGraphic(deletePressed);
 							Timeline timeline = new Timeline(
 									new KeyFrame(Duration.millis(200), ae -> deleteButton.setGraphic(delete)));
-
 							timeline.play();
 
+							//poistetaan tiedosto
 							kontrolleri.deleteFile();
-
+							//ja poistetaan kappaleen nimi listasta
 							items.remove(list.getSelectionModel().getSelectedItem());
 
 							list.getSelectionModel().clearSelection();
 							songName.setPromptText("Kappale poistettu!");
 							list.getSelectionModel().clearSelection();
 							timeline = new Timeline(new KeyFrame(Duration.millis(2000),
-									ae -> songName.setPromptText("Nime� uusi nauhoite")));
+									ae -> songName.setPromptText("Nimeä uusi nauhoite")));
 							timeline.play();
 						}
+
+					// jos ei ole valittu kappaletta listasta
 					} else {
+
+						//jos toisto käynnissä, tulee ilmoitus asiasta
 						if (playIsPressed == 1) {
 							deleteButton.setGraphic(deleteError);
 							Timeline timeline = new Timeline(
@@ -314,6 +391,8 @@ public class SeppoView extends Application implements SeppoView_IF {
 							timeline = new Timeline(
 									new KeyFrame(Duration.millis(2000), ae -> songName.setPromptText("Toistetaan...")));
 							timeline.play();
+
+						// ilmoitetaan että pitää ensin valita kappale poistettavaksi
 						} else {
 							songName.setPromptText("Ei valintaa");
 							deleteButton.setGraphic(deleteError);
@@ -325,8 +404,9 @@ public class SeppoView extends Application implements SeppoView_IF {
 							timeline.play();
 						}
 					}
+
+				// nauhoituksen ollessa käynnissä kappaleen poisto ei ole mahdollista
 				} else {
-					// vilkuttaa nappia mahdollisimman epäoptimoidulla tavalla
 					songName.setPromptText("Nauhoitus käynnissä!");
 					Timeline timeline = new Timeline(
 							new KeyFrame(Duration.millis(2000), ae -> songName.setPromptText("Nauhoitetaan...")));
@@ -338,6 +418,7 @@ public class SeppoView extends Application implements SeppoView_IF {
 
 			}
 		});
+
 		// asettelu
 		grid.setPadding(new Insets(25, 25, 25, 25));
 		grid.setHgap(10);
@@ -358,6 +439,7 @@ public class SeppoView extends Application implements SeppoView_IF {
 		border.setCenter(grid);
 		border.setRight(piano);
 
+		// luodaan scene
 		Scene scene = new Scene(border, 1180, 790);
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
@@ -370,14 +452,17 @@ public class SeppoView extends Application implements SeppoView_IF {
 			public void handle(KeyEvent event) {
 				switch (event.getCode()) {
 				case S:
-					// jos painalluskuva on jo esillä ei tehdä mitään
+					// jos painalluskuva on jo esillä, ei tehdä mitään
 					if (piano.getChildren().contains(cPress)) {
 						break;
 					} else {
+						// vaihdetaan esille kuva jossa c-kosketin on painettuna
 						piano.getChildren().add(cPress);
 
+						// välitetään eteenpäin tieto mitä nappia on painettu
 						kontrolleri.sendInt(2);
 
+						// tallennetaan painalluksen aika painalluksen keston laskemiseksi
 						kontrolleri.timerStart();
 
 					}
@@ -470,13 +555,21 @@ public class SeppoView extends Application implements SeppoView_IF {
 			public void handle(KeyEvent event) {
 				switch (event.getCode()) {
 				case S:
+
+					// vaihdetaan takaisin kuvaan jossa pianon koskettimia ei ole painettuna
 					piano.getChildren().remove(cPress);
+
+					// lähetetään tieto että kosketinta ei enää paineta
 					kontrolleri.sendInt(10);
 
+					// tallennetaan aika jolloin nappi vapautettiin
 					kontrolleri.timerStop();
+
+					// kirjataan nuotin tiedot
 					note = new Note('c', (int) kontrolleri.getTime());
 					System.out.println(note.getKey() + note.getDelay());
 
+					// jos nauhoitus on käynnissä, nuotti lisätään nuottilistaan
 					if (recordIsPressed == 1){
 						song.add(note);
 					}
@@ -579,6 +672,9 @@ public class SeppoView extends Application implements SeppoView_IF {
 	}
 
 	// lisää filut items-listaan
+	/* (non-Javadoc)
+	 * @see Gui.SeppoView_IF#listList()
+	 */
 	public void listList() {
 		for (int i = 0; i < listOfFiles.length; i++) {
 			items.add(listOfFiles[i].getName());
@@ -586,7 +682,9 @@ public class SeppoView extends Application implements SeppoView_IF {
 	}
 
 	// poistaa kappaleen directorysta
-
+	/* (non-Javadoc)
+	 * @see Gui.SeppoView_IF#selectedFilepath()
+	 */
 	public String selectedFilepath() {
 		String filepath = "C:\\Users\\Jesme\\workspace\\RoboOhjain\\Songs\\"
 				+ (list.getSelectionModel().getSelectedItem());
@@ -594,6 +692,10 @@ public class SeppoView extends Application implements SeppoView_IF {
 	}
 
 
+	/**
+	 * Tallentaa uuden tiedoston kohdekansioon.
+	 * @param songname
+	 */
 	public void createSong(String songname){
 
 		try {
@@ -602,7 +704,7 @@ public class SeppoView extends Application implements SeppoView_IF {
 			oos.writeObject(song);
 			oos.close();
 		} catch (Exception e) {
-			System.out.println("Kappaleen tallennus ep�onnistui!!");
+			System.out.println("Kappaleen tallennus epäonnistui!!");
 			e.printStackTrace();
 		}
 		System.out.println("Tallennus onnistui!");

@@ -21,7 +21,7 @@ public class SeppoControl implements SeppoControl_IF {
 			SeppoModel client = new SeppoModel();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			System.out.println("Yhteys ep‰onnistui");
+			System.out.println("Yhteys ep√§onnistui");
 		}
 	}
 

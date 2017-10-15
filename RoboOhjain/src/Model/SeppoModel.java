@@ -13,7 +13,18 @@ import java.util.ArrayList;
 public class SeppoModel implements SeppoModel_IF {
 
 	ObjectOutputStream out;
-	private long tStart, tEnd, time;
+	/**
+	 * Muuttuja saa arvokseen ajan jolloin jokin kosketin painettiin alas.
+	 */
+	private long tStart;
+	/**
+	 * Muuttuja saa arvokseen ajan jolloin kosketin vapautettiin.
+	 */
+	private long tEnd;
+	/**
+	 * Napinpainalluksen kesto, muuttujan arvo saadaan laskemalla tEnd - tStart.
+	 */
+	private long time;
 
 
 	Note C = new Note ('c', 0);
@@ -21,6 +32,9 @@ public class SeppoModel implements SeppoModel_IF {
 
 
 
+	/**
+	 * Metodi muodostaa yhteyden robotin ja tietokoneen v√§lille.
+	 */
 	public SeppoModel() {
 		try {
 			@SuppressWarnings("resource")
@@ -28,10 +42,9 @@ public class SeppoModel implements SeppoModel_IF {
 			out = new ObjectOutputStream(s.getOutputStream());
 
 		} catch (Exception e) {
-			System.out.println("Yhteyden muodostus ep‰onnistui");
+			System.out.println("Yhteyden muodostus ep√§onnistui");
 		}
 	}
-
 
 
 	public void sendInt(int dataObject) {
@@ -44,7 +57,6 @@ public class SeppoModel implements SeppoModel_IF {
 		}
 	}
 
-
 	public ArrayList<Note> unpackFile(String filepath){
 
 		ArrayList<Note> newSong = null;
@@ -56,7 +68,7 @@ public class SeppoModel implements SeppoModel_IF {
 			ois.close();
 
 		}catch (Exception e){
-			System.out.println("Tiedoston purkaminen ep‰onnistui.");
+			System.out.println("Tiedoston purkaminen ep√§onnistui.");
 			e.printStackTrace();
 		}
 		return newSong;
@@ -64,13 +76,11 @@ public class SeppoModel implements SeppoModel_IF {
 
 	public void deleteFile(String filepath) {
 		File targetFile = new File(filepath);
-		
 		targetFile.delete();
 	}
 
 
 	public void sendSong(ArrayList<Note> list){
-
 
 		try{
 			out.writeObject(list);
@@ -79,10 +89,6 @@ public class SeppoModel implements SeppoModel_IF {
 			e.printStackTrace();
 		}
 	}
-
-
-
-
 
 	public void timerStart(){
 		tStart = System.currentTimeMillis();
@@ -96,10 +102,6 @@ public class SeppoModel implements SeppoModel_IF {
 		time = tEnd - tStart;
 		return time;
 	}
-
-
-
-
 
 }
 
